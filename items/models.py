@@ -12,6 +12,7 @@ class Item(models.Model):
 
 class User(models.Model):
     USER_ROLES = [
+        ('student', 'студент'),
         ('assistant', 'Ассистент'),
         ('leader', 'Староста'),
         ('accountant', 'Бухгалтер'),
@@ -25,10 +26,10 @@ class User(models.Model):
     birthday = models.DateField()
     user_role = models.CharField(max_length=20, choices=USER_ROLES)
     questions = models.TextField()
-    login = models.CharField(max_length=20, unique=True)  # phone_number
+    login = models.CharField(max_length=20, unique=True)  
     password = models.CharField(max_length=128)
-    house = models.CharField(max_length=255)  # Дом
-    team = models.CharField(max_length=255)   # Команда
+    house = models.CharField(max_length=255)  
+    team = models.CharField(max_length=255)   
 
     def __str__(self):
         return self.fullname
@@ -146,7 +147,7 @@ class Event(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
-    responsible_cart = models.ManyToManyField('ResponsibleCart')  # Связь с ResponsibleCart
+    responsible_cart = models.ManyToManyField('ResponsibleCart')  
     comment = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     date = models.DateField()
