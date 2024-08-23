@@ -1,4 +1,6 @@
-from django.db import models
+from django.db import models 
+from django.db.models import Sum
+from datetime import datetime
 
 class Item(models.Model):
     name = models.CharField(max_length=100)
@@ -85,6 +87,21 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report for {self.student.fullname} on {self.dateCreated.strftime('%Y-%m-%d')}"
+
+    @staticmethod
+    def get_monthly_report(year, month):
+        start_date = datetime(year, month, 1)
+        end_date = datetime(year, month + 1, 1) if month < 12 else datetime(year + 1, 1, 1)
+
+        reports = Report.objects.filter(dateCreated__range=(start_date, end_date))
+        total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
+        report_data = {
+            "month": month,
+            "year": year,
+            "total_points": total_points,
+            "reports": reports
+        }
+        return report_data
 
 class TestCategory(models.Model):
     id = models.AutoField(primary_key=True)

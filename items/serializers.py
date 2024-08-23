@@ -29,7 +29,7 @@ class CardTaskSerializer(serializers.ModelSerializer):
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
-        fields = '__all__'
+        fields = ['id', 'student', 'card_tasks', 'total_point', 'dateCreated']
 
 class TestCategorySerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,4 +1,8 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models import Sum
+from datetime import datetime
 from .models import User, House, Team, Task, CardTask, Report, TestCategory, Test, Questions, Answer, WrittenTest, Event, ResponsibleCart
 from .serializers import UserSerializer, HouseSerializer, TeamSerializer, TaskSerializer, CardTaskSerializer, ReportSerializer, TestCategorySerializer, TestSerializer, QuestionsSerializer, AnswerSerializer, WrittenTestSerializer, EventSerializer, ResponsibleCartSerializer
 
@@ -25,6 +29,13 @@ class CardTaskViewSet(viewsets.ModelViewSet):
 class ReportViewSet(viewsets.ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
+
+    @action(detail=False, methods=['get'])
+    def monthly_summary(self, request):
+        year = int(request.query_params.get('year', datetime.now().year))
+        month = int(request.query_params.get('month', datetime.now().month))
+        summary = Report.get_monthly_report(year, month)
+        return Response(summary)
 
 class TestCategoryViewSet(viewsets.ModelViewSet):
     queryset = TestCategory.objects.all()
@@ -53,3 +64,9 @@ class EventViewSet(viewsets.ModelViewSet):
 class ResponsibleCartViewSet(viewsets.ModelViewSet):
     queryset = ResponsibleCart.objects.all()
     serializer_class = ResponsibleCartSerializer
+
+class UserTotalPointsView(generics.GenericAPIView):
+    def get(self, request, user_id):
+        reports = Report.objects.filter(student_id=user_id)
+        total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
+        return Response({'user_id': user_id, 'total_points': total_points})
