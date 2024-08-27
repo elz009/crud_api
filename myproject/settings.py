@@ -27,10 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+APPEND_SLASH = True
+
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,3 +126,22 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+JAZZMIN_SETTINGS = {
+    "site_title": "My Django Admin",
+    "site_header": "MyProject Administration",
+    "site_brand": "MyProject",
+    "welcome_sign": "Welcome to the MyProject Admin",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["auth", "items"],
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "items.Item": "fas fa-boxes",
+    },
+    "related_modal_active": False,
+    "custom_css": None,
+    "custom_js": None,
+}

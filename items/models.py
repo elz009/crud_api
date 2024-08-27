@@ -79,30 +79,12 @@ class CardTask(models.Model):
         return f"{self.task.name} - {self.quantity}"
     
 class Report(models.Model):
-    id = models.AutoField(primary_key=True)
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
-    card_tasks = models.ManyToManyField(CardTask, related_name='reports')
+    # Проверьте, нет ли рекурсивных отношений
+    student = models.ForeignKey('User', on_delete=models.CASCADE)
+    card_tasks = models.ManyToManyField('CardTask')
     total_point = models.IntegerField()
-    dateCreated = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Report for {self.student.fullname} on {self.dateCreated.strftime('%Y-%m-%d')}"
-
-    @staticmethod
-    def get_monthly_report(year, month):
-        start_date = datetime(year, month, 1)
-        end_date = datetime(year, month + 1, 1) if month < 12 else datetime(year + 1, 1, 1)
-
-        reports = Report.objects.filter(dateCreated__range=(start_date, end_date))
-        total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
-        report_data = {
-            "month": month,
-            "year": year,
-            "total_points": total_points,
-            "reports": reports
-        }
-        return report_data
-
+    dateCreated = models.DateField(auto_now_add=True)
+    
 class TestCategory(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)

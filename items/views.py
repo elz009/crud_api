@@ -1,8 +1,11 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Sum
+from django.utils import timezone
 from datetime import datetime
+import calendar
 from .models import User, House, Team, Task, CardTask, Report, TestCategory, Test, Questions, Answer, WrittenTest, Event, ResponsibleCart
 from .serializers import UserSerializer, HouseSerializer, TeamSerializer, TaskSerializer, CardTaskSerializer, ReportSerializer, TestCategorySerializer, TestSerializer, QuestionsSerializer, AnswerSerializer, WrittenTestSerializer, EventSerializer, ResponsibleCartSerializer
 
@@ -70,3 +73,19 @@ class UserTotalPointsView(generics.GenericAPIView):
         reports = Report.objects.filter(student_id=user_id)
         total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
         return Response({'user_id': user_id, 'total_points': total_points})
+
+class MonthlyReportView(APIView):
+    def get(self, request, format=None):
+        today = timezone.now().date()
+        first_day_of_month = today.replace(day=1)
+        last_day_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+
+        reports = Report.objects.filter(dateCreated__range=[first_day_of_month, last_day_of_month])
+        
+        total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
+        
+        return Response({
+            'total_points': total_points,
+            'total_reports': reports.count(),
+            'month': today.strftime('%B %Y')
+        }, status=status.HTTP_200_OK)

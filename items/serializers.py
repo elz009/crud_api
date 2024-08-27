@@ -65,3 +65,14 @@ class ResponsibleCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResponsibleCart
         fields = '__all__'
+
+
+class MonthlyReportSerializer(serializers.Serializer):
+    month = serializers.CharField()
+    total_reports = serializers.IntegerField()
+    total_points = serializers.FloatField()
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report
+        fields = '__all__'
