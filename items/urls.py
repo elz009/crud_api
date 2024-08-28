@@ -1,26 +1,32 @@
-from django.urls import path, include
+from django.urls import path, include, get_resolver
 from rest_framework.routers import DefaultRouter
-from .views import MonthlyReportView
-from . import views
+from .views import (
+    UserViewSet, HouseViewSet, TeamViewSet, TaskViewSet,
+    CardTaskViewSet, ReportViewSet, TestCategoryViewSet, TestViewSet,
+    QuestionsViewSet, AnswerViewSet, WrittenTestViewSet, EventViewSet,
+    ResponsibleCartViewSet, UserTotalPointsView, MonthlyReportView
+)
 
 router = DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'houses', views.HouseViewSet)
-router.register(r'teams', views.TeamViewSet)
-router.register(r'tasks', views.TaskViewSet)
-router.register(r'card_tasks', views.CardTaskViewSet)
-router.register(r'reports', views.ReportViewSet)
-router.register(r'test_categories', views.TestCategoryViewSet)
-router.register(r'tests', views.TestViewSet)
-router.register(r'questions', views.QuestionsViewSet)
-router.register(r'answers', views.AnswerViewSet)
-router.register(r'written_tests', views.WrittenTestViewSet)
-router.register(r'events', views.EventViewSet)
-router.register(r'responsible_carts', views.ResponsibleCartViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'houses', HouseViewSet)
+router.register(r'teams', TeamViewSet)
+router.register(r'tasks', TaskViewSet)
+router.register(r'card_tasks', CardTaskViewSet)
+router.register(r'reports', ReportViewSet)
+router.register(r'test_categories', TestCategoryViewSet)
+router.register(r'tests', TestViewSet)
+router.register(r'questions', QuestionsViewSet)
+router.register(r'answers', AnswerViewSet)
+router.register(r'writtentests', WrittenTestViewSet)
+router.register(r'events', EventViewSet)
+router.register(r'responsible_carts', ResponsibleCartViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
     path('api/', include(router.urls)),
-    path('monthly-reports/', MonthlyReportView.as_view(), name='monthly_reports'),
-
+    path('api/user-total-points/<int:user_id>/', UserTotalPointsView.as_view(), name='user-total-points'),
+    path('api/monthly-report/', MonthlyReportView.as_view(), name='monthly-report'),
 ]
+
+for url_pattern in get_resolver().url_patterns:
+    print(url_pattern)

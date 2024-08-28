@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, House, Team, Task, CardTask, Report, TestCategory, Test, Questions, Answer, WrittenTest, Event, ResponsibleCart
+from .models import User, House, Team, Task, CardTask, Report, TestCategory, Test, Questions, Answer, WrittenTest, Event, ResponsibleCart, User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -76,3 +76,15 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = '__all__'
+
+class UserReportSerializer(serializers.ModelSerializer):
+    total_points = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'fullname', 'total_points']
+
+    def get_total_points(self, obj):
+        reports = Report.objects.filter(student=obj)
+        total_points = reports.aggregate(total=Sum('total_point'))['total'] or 0
+        return total_points

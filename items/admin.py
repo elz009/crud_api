@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from items import views  
+from items.views import UserTotalPointsView  # Импортируем ваш APIView
 
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -21,4 +22,5 @@ router.register(r'responsible_carts', views.ResponsibleCartViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/user-total-points/<int:user_id>/', UserTotalPointsView.as_view(), name='user-total-points'),  # Добавляем маршрут
 ]
