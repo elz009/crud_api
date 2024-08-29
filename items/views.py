@@ -7,11 +7,31 @@ from django.utils import timezone
 from datetime import datetime
 import calendar
 from .models import User, House, Team, Task, CardTask, Report, TestCategory, Test, Questions, Answer, WrittenTest, Event, ResponsibleCart
-from .serializers import UserSerializer, HouseSerializer, TeamSerializer, TaskSerializer, CardTaskSerializer, ReportSerializer, TestCategorySerializer, TestSerializer, QuestionsSerializer, AnswerSerializer, WrittenTestSerializer, EventSerializer, ResponsibleCartSerializer
+from .serializers import UserSerializer, HouseSerializer, TeamSerializer, TaskSerializer, CardTaskSerializer, ReportSerializer, TestCategorySerializer, TestSerializer, QuestionsSerializer, AnswerSerializer, WrittenTestSerializer, EventSerializer, ResponsibleCartSerializer, UserTotalPointsSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @action(detail=True, methods=['get'])
+    def total_points(self, request, pk=None):
+        user = self.get_object()  # Get the specific user
+        total_points = Report.objects.filter(student=user).aggregate(Sum('total_point'))['total_point__sum'] or 0
+        return Response({'total_points': total_points})
+    
+class MonthlyReportView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Return a simple response to check if the view is working
+        return Response({"message": "Monthly report endpoint is working"}, status=status.HTTP_200_OK)
+
+class UserTotalPointsView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            total_points = user.get_total_points()  # Or however you calculate this
+            return Response({'total_points': total_points}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()
@@ -67,25 +87,3 @@ class EventViewSet(viewsets.ModelViewSet):
 class ResponsibleCartViewSet(viewsets.ModelViewSet):
     queryset = ResponsibleCart.objects.all()
     serializer_class = ResponsibleCartSerializer
-
-class UserTotalPointsView(generics.GenericAPIView):
-    def get(self, request, user_id):
-        reports = Report.objects.filter(student_id=user_id)
-        total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
-        return Response({'user_id': user_id, 'total_points': total_points})
-
-class MonthlyReportView(APIView):
-    def get(self, request, format=None):
-        today = timezone.now().date()
-        first_day_of_month = today.replace(day=1)
-        last_day_of_month = today.replace(day=calendar.monthrange(today.year, today.month)[1])
-
-        reports = Report.objects.filter(dateCreated__range=[first_day_of_month, last_day_of_month])
-        
-        total_points = reports.aggregate(Sum('total_point'))['total_point__sum'] or 0
-        
-        return Response({
-            'total_points': total_points,
-            'total_reports': reports.count(),
-            'month': today.strftime('%B %Y')
-        }, status=status.HTTP_200_OK)

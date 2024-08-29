@@ -1,4 +1,5 @@
-from django.urls import path, include, get_resolver
+# items/urls.py
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     UserViewSet, HouseViewSet, TeamViewSet, TaskViewSet,
@@ -27,6 +28,3 @@ urlpatterns = [
     path('api/user-total-points/<int:user_id>/', UserTotalPointsView.as_view(), name='user-total-points'),
     path('api/monthly-report/', MonthlyReportView.as_view(), name='monthly-report'),
 ]
-
-for url_pattern in get_resolver().url_patterns:
-    print(url_pattern)

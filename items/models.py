@@ -173,3 +173,4 @@ class ResponsibleCart(models.Model):
 
     def __str__(self):
         return f"Responsible Cart for {self.house.name} by {self.headman.fullname}"
+

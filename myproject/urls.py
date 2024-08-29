@@ -20,6 +20,6 @@ router.register(r'responsible_carts', views.ResponsibleCartViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
+    path('', include('items.urls')),
 ]
 

@@ -1,26 +1,70 @@
 from django.contrib import admin
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from items import views  
-from items.views import UserTotalPointsView  # Импортируем ваш APIView
+from .models import (
+    User, House, Team, Task, CardTask, Report, TestCategory, Test,
+    Questions, Answer, WrittenTest, Event, ResponsibleCart
+)
 
-router = DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'houses', views.HouseViewSet)
-router.register(r'teams', views.TeamViewSet)
-router.register(r'tasks', views.TaskViewSet)
-router.register(r'card_tasks', views.CardTaskViewSet)
-router.register(r'reports', views.ReportViewSet)
-router.register(r'test_categories', views.TestCategoryViewSet)
-router.register(r'tests', views.TestViewSet)
-router.register(r'questions', views.QuestionsViewSet)
-router.register(r'answers', views.AnswerViewSet)
-router.register(r'written_tests', views.WrittenTestViewSet)
-router.register(r'events', views.EventViewSet)
-router.register(r'responsible_carts', views.ResponsibleCartViewSet)
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('id', 'fullname', 'university', 'course', 'birthday', 'user_role')
+    search_fields = ('fullname', 'login')
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    path('api/user-total-points/<int:user_id>/', UserTotalPointsView.as_view(), name='user-total-points'),  # Добавляем маршрут
-]
+@admin.register(House)
+class HouseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'address', 'number_of_participants')
+    search_fields = ('name', 'address')
+
+@admin.register(Team)
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'point', 'minimum')
+    search_fields = ('name',)
+
+@admin.register(CardTask)
+class CardTaskAdmin(admin.ModelAdmin):
+    list_display = ('id', 'task', 'quantity', 'local_point')
+    search_fields = ('task__name',)
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('id', 'student', 'total_point', 'dateCreated')
+    search_fields = ('student__fullname',)
+
+@admin.register(TestCategory)
+class TestCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+
+@admin.register(Test)
+class TestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'description', 'questionsCount')
+    search_fields = ('name', 'description')
+
+@admin.register(Questions)
+class QuestionsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'question', 'test')
+    search_fields = ('question', 'test__name')
+
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ('id', 'question', 'answer')
+    search_fields = ('question__question',)
+
+@admin.register(WrittenTest)
+class WrittenTestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'test', 'quantity_correct_answer')
+    search_fields = ('user__fullname', 'test__name')
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'date')
+    search_fields = ('name',)
+
+@admin.register(ResponsibleCart)
+class ResponsibleCartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'house', 'headman', 'quantity', 'status')
+    search_fields = ('house__name', 'headman__fullname')
