@@ -15,23 +15,30 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def total_points(self, request, pk=None):
-        user = self.get_object()  # Get the specific user
+        user = self.get_object()  
         total_points = Report.objects.filter(student=user).aggregate(Sum('total_point'))['total_point__sum'] or 0
         return Response({'total_points': total_points})
     
 class MonthlyReportView(APIView):
     def get(self, request, *args, **kwargs):
-        # Return a simple response to check if the view is working
-        return Response({"message": "Monthly report endpoint is working"}, status=status.HTTP_200_OK)
+        year = int(request.query_params.get('year', datetime.now().year))
+        month = int(request.query_params.get('month', datetime.now().month))
+        summary = Report.objects.filter(
+            dateCreated__year=year,
+            dateCreated__month=month
+        ).aggregate(total_points=Sum('total_point'))['total_points'] or 0
+
+        return Response({"year": year, "month": month, "total_points": summary}, status=status.HTTP_200_OK)
 
 class UserTotalPointsView(APIView):
     def get(self, request, user_id):
         try:
             user = User.objects.get(id=user_id)
-            total_points = user.get_total_points()  # Or however you calculate this
+            total_points = Report.objects.filter(student=user).aggregate(Sum('total_point'))['total_point__sum'] or 0
             return Response({'total_points': total_points}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()
